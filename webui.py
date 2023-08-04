@@ -320,9 +320,9 @@ def initialize_rest(*, reload_script_modules=False):
         if modules.sd_hijack.current_optimizer is None:
             modules.sd_hijack.apply_optimizations()
 
-    Thread(target=load_model).start()
+        devices.first_time_calculation()
 
-    Thread(target=devices.first_time_calculation).start()
+    Thread(target=load_model).start()
 
     shared.reload_hypernetworks()
     startup_timer.record("reload hypernetworks")
@@ -407,7 +407,7 @@ def webui():
             ssl_verify=cmd_opts.disable_tls_verify,
             debug=cmd_opts.gradio_debug,
             auth=gradio_auth_creds,
-            inbrowser=cmd_opts.autolaunch and os.getenv('SD_WEBUI_RESTARTING') != '1',
+            inbrowser=(cmd_opts.autolaunch or (not(cmd_opts.listen or cmd_opts.share or cmd_opts.ngrok) and not cmd_opts.disable_auto_autolaunch)) and os.getenv('SD_WEBUI_RESTARTING') != '1',
             prevent_thread_lock=True,
             allowed_paths=cmd_opts.gradio_allowed_path,
             app_kwargs={
